@@ -1,0 +1,36 @@
+services:
+  backend:
+    image: f2b_dashboard-backend:latest
+    container_name: f2b-grid-backend
+    restart: unless-stopped
+    volumes:
+      - /var/lib/fail2ban/fail2ban.sqlite3:/var/lib/fail2ban/fail2ban.sqlite3:ro,z
+      - /var/log/fail2ban.log:/var/log/fail2ban.log:ro,z
+    environment:
+      - F2B_DB_PATH=/var/lib/fail2ban/fail2ban.sqlite3
+      - F2B_LOG_PATH=/var/log/fail2ban.log
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+    networks:
+      - f2b-grid
+
+  frontend:
+    image: f2b_dashboard-frontend:latest
+    container_name: f2b-grid-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+    networks:
+      - f2b-grid
+
+networks:
+  f2b-grid:
+    driver: bridge

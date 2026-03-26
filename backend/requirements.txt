@@ -1,0 +1,7 @@
+fastapi[all]>=0.100.0
+uvicorn>=0.23.0
+pydantic-settings>=2.0.3
+pytest>=7.4.0
+SQLAlchemy>=2.0.20
+ipwhois>=1.2.0
+slowapi>=0.1.9

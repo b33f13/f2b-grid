@@ -1,0 +1,79 @@
+:root {
+  --color-bg:        #0a0a0f;
+  --color-surface:   #0d1117;
+  --color-border:    #1a2332;
+  --color-neon-cyan: #00f5ff;
+  --color-neon-pink: #ff0080;
+  --color-neon-green:#00ff41;
+  --color-warning:   #ffaa00;
+  --color-danger:    #ff2244;
+  --font-mono:       'JetBrains Mono', 'Fira Code', monospace;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: #fff;
+  font-family: var(--font-mono);
+  margin: 0;
+  padding: 0;
+}
+
+/* Neon utilities */
+.text-neon-cyan { color: var(--color-neon-cyan); text-shadow: 0 0 5px var(--color-neon-cyan); }
+.text-neon-pink { color: var(--color-neon-pink); text-shadow: 0 0 5px var(--color-neon-pink); }
+.text-neon-green { color: var(--color-neon-green); text-shadow: 0 0 5px var(--color-neon-green); }
+
+.border-neon {
+  border: 1px solid var(--color-border);
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.1);
+}
+
+.panel {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+}
+
+/* Animations */
+@keyframes flicker {
+  0% { opacity: 0.95; }
+  5% { opacity: 0.8; }
+  10% { opacity: 0.95; }
+  15% { opacity: 1; }
+  50% { opacity: 0.95; }
+  52% { opacity: 0.5; }
+  54% { opacity: 0.95; }
+  100% { opacity: 1; }
+}
+
+.animate-flicker {
+  animation: flicker 4s infinite;
+}
+
+/* CRT Monitor Effect */
+.crt::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  z-index: 50;
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+}
+
+.crt::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.4) 100%);
+  z-index: 51;
+  pointer-events: none;
+}
