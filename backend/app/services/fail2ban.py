@@ -15,9 +15,18 @@ class Fail2BanService:
     def _get_connection(self):
         # Read-only connection using uri parameter for safety
         abs_path = os.path.abspath(self.db_path)
+        if not os.path.exists(abs_path):
+            raise FileNotFoundError(f"Fail2ban DB not found: {abs_path}")
         conn = sqlite3.connect(f"file:{abs_path}?mode=ro", uri=True)
         conn.row_factory = sqlite3.Row
         return conn
+
+    def is_db_available(self) -> bool:
+        try:
+            self._get_connection().close()
+            return True
+        except Exception:
+            return False
 
     def _parse_failures(self, row) -> int:
         """Extract failure count from the JSON data column, fall back to bancount."""

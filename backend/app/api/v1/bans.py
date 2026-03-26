@@ -71,11 +71,37 @@ def get_active_bans(
 
 @router.get("/stats", response_model=StatsResponse)
 def get_stats():
-    """Get ban statistics."""
-    stats = f2b_service.get_stats()
+    """Get ban statistics. Log-first: always uses log for totals, DB for active counts if available."""
+    # Always get totals from the log (most complete source)
     log_stats = log_service.get_log_stats()
-    stats["total_bans"] = max(stats["total_bans"], log_stats["total_bans"])
-    return stats
+    total_bans = log_stats["total_bans"]
+
+    active_bans = 0
+    top_jail = "N/A"
+
+    # Try DB for active count and top jail
+    try:
+        db_stats = f2b_service.get_stats()
+        active_bans = db_stats["active_bans"]
+        top_jail = db_stats["top_jail"]
+    except Exception:
+        # Fallback: derive active_bans and top_jail from log
+        try:
+            from collections import Counter
+            history = log_service.get_history(limit=99999)
+            active_entries = [e for e in history["items"] if e["isActive"]]
+            active_bans = len(active_entries)
+            if active_entries:
+                jail_counts = Counter(e["jail"] for e in active_entries)
+                top_jail = jail_counts.most_common(1)[0][0]
+        except Exception:
+            pass
+
+    return {
+        "total_bans": total_bans,
+        "active_bans": active_bans,
+        "top_jail": top_jail,
+    }
 
 @router.get("/stats/timeline", response_model=List[TimelineItem])
 def get_timeline():
@@ -94,8 +120,16 @@ def get_jails():
 
 @router.get("/jails/active", response_model=List[JailItem])
 def get_active_jails():
-    """Get active jails distribution."""
-    return f2b_service.get_active_jails()
+    """Get active jails distribution. Uses DB if available, falls back to log."""
+    try:
+        return f2b_service.get_active_jails()
+    except Exception:
+        # Fallback: derive active jail counts from log
+        from collections import Counter
+        history = log_service.get_history(limit=99999)
+        active_entries = [e for e in history["items"] if e["isActive"]]
+        jail_counts = Counter(e["jail"] for e in active_entries)
+        return [{"jail": j, "count": c} for j, c in jail_counts.most_common()]
 
 @router.get("/export")
 def export_csv(
